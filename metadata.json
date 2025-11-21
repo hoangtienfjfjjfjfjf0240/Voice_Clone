@@ -1,0 +1,7 @@
+{
+  "name": "Gemini Omni-Tool",
+  "description": "A multi-modal AI application featuring Voice Cloning (ElevenLabs), Real-time Conversation (Gemini Live), and Advanced Reasoning with Search (Gemini Chat).",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
