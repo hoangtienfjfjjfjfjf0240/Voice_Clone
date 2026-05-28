@@ -1,9 +1,8 @@
 
 export interface VoiceSettings {
-  stability: number;
-  similarity_boost: number;
-  style: number;
-  use_speaker_boost: boolean;
+  speed: number;
+  volume: number;
+  pitch: number;
 }
 
 export interface TTSInput {
@@ -41,9 +40,12 @@ export enum ChatMode {
   THINKING = 'THINKING'
 }
 
-export interface ElevenLabsVoice {
+export type MiniMaxVoiceCategory = 'system' | 'voice_cloning' | 'voice_generation';
+
+export interface MiniMaxVoice {
   voice_id: string;
   name: string;
-  category: string;
-  labels?: Record<string, string>;
+  category: MiniMaxVoiceCategory;
+  created_time?: string;
+  description?: string[];
 }

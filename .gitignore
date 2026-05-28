@@ -1,0 +1,6 @@
+.env.local
+.vercel/
+.npm-cache/
+dist/
+node_modules/
+vite-dev*.log

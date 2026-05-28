@@ -1,0 +1,13 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/minimax/(.*)",
+      "destination": "/api/minimax?path=$1"
+    }
+  ],
+  "functions": {
+    "api/minimax.js": {
+      "maxDuration": 60
+    }
+  }
+}

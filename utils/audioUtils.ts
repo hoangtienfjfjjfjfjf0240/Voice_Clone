@@ -1,11 +1,16 @@
 /// <reference lib="dom" />
-// Helper: AudioBuffer to WAV Blob (Simplified)
+
+const TARGET_CLONE_SECONDS = 60;
+const MAX_CLONE_SECONDS = 180;
+const OUTPUT_SAMPLE_RATE = 32000;
+
+// Helper: AudioBuffer to mono 16-bit PCM WAV Blob.
 export function audioBufferToWavSimple(buffer: AudioBuffer) {
-  const numChannels = buffer.numberOfChannels;
+  const numChannels = 1;
   const sampleRate = buffer.sampleRate;
   const format = 1; // PCM
   const bitDepth = 16;
-  const result = buffer.getChannelData(0); // Always mono for clone
+  const result = buffer.getChannelData(0);
   const bytesPerSample = bitDepth / 8;
   const blockAlign = numChannels * bytesPerSample;
   const bufferArr = new ArrayBuffer(44 + result.length * bytesPerSample);
@@ -43,22 +48,17 @@ export const AudioService = {
   },
 
   processForCloning: async (originalBuffer: AudioBuffer): Promise<Blob> => {
-    const ctx = new OfflineAudioContext(
-      1, // Force Mono
-      originalBuffer.duration * originalBuffer.sampleRate * 10, // Max buffer
-      originalBuffer.sampleRate
-    );
-
-    const TARGET_DURATION = 60;
-    let loopCount = Math.ceil(TARGET_DURATION / originalBuffer.duration);
+    const targetDuration = originalBuffer.duration < TARGET_CLONE_SECONDS
+      ? TARGET_CLONE_SECONDS
+      : Math.min(originalBuffer.duration, MAX_CLONE_SECONDS);
+    let loopCount = Math.ceil(targetDuration / originalBuffer.duration);
     if (loopCount < 1) loopCount = 1;
-    
-    const totalSamples = originalBuffer.length * loopCount;
+    const totalSamples = Math.ceil(targetDuration * OUTPUT_SAMPLE_RATE);
     
     const renderCtx = new OfflineAudioContext(
       1, 
       totalSamples, 
-      originalBuffer.sampleRate
+      OUTPUT_SAMPLE_RATE
     );
 
     const compressor = renderCtx.createDynamicsCompressor();
@@ -76,14 +76,16 @@ export const AudioService = {
     lowPass.type = 'lowpass';
     lowPass.frequency.value = 8000;
 
+    highPass.connect(lowPass);
+    lowPass.connect(compressor);
+    compressor.connect(renderCtx.destination);
+
     for (let i = 0; i < loopCount; i++) {
       const source = renderCtx.createBufferSource();
       source.buffer = originalBuffer;
       source.connect(highPass);
-      highPass.connect(lowPass);
-      lowPass.connect(compressor);
-      compressor.connect(renderCtx.destination);
       source.start(i * originalBuffer.duration);
+      source.stop(targetDuration);
     }
 
     const processedBuffer = await renderCtx.startRendering();

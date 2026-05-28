@@ -1,6 +1,6 @@
 {
-  "name": "Gemini Omni-Tool",
-  "description": "A multi-modal AI application featuring Voice Cloning (ElevenLabs), Real-time Conversation (Gemini Live), and Advanced Reasoning with Search (Gemini Chat).",
+  "name": "MiniMax Voice Clone",
+  "description": "A local tool for cloning voice from short video/audio with MiniMax Speech API and generating multilingual TTS.",
   "requestFramePermissions": [
     "microphone"
   ]
